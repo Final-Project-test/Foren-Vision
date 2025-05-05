@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deblurred Image Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Existing styles */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .results-table th {
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+        }
+
+        .results-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .results-table tr:hover {
+            background-color: #ddd;
+        }
+
+        .delete-btn,
+        .download-btn {
+            background-color: #d9534f;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .download-btn {
+            background-color: #5bc0de;
+        }
+
+        .delete-btn:hover,
+        .download-btn:hover {
+            background-color: #c9302c;
+        }
+
+        .delete-all-btn {
+            background-color: #f0ad4e;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .delete-all-btn:hover {
+            background-color: #ec971f;
+        }
+
+        .no-results {
+            font-size: 18px;
+            color: #666;
+            margin-top: 30px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Dark Mode Styles */
+        body.dark-mode .results-table th,
+        body.dark-mode .results-table td {
+            border-color: #555;
+        }
+
+        body.dark-mode .results-table th {
+            background-color: #444;
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .results-table td {
+            color: #f0f0f0;
+        }
+
+        body.dark-mode .results-table tr:nth-child(even) {
+            background-color: #333;
+        }
+
+        body.dark-mode .results-table tr:hover {
+            background-color: #555;
+        }
+
+        body.dark-mode .delete-btn,
+        body.dark-mode .download-btn {
+            background-color: #d9534f;
+        }
+
+        body.dark-mode .delete-btn:hover,
+        body.dark-mode .download-btn:hover {
+            background-color: #c9302c;
+        }
+
+        body.dark-mode .btn {
+            background-color: #e2a600;
+        }
+
+        body.dark-mode .btn:hover {
+            background-color: #555;
+        }
+
+        /* Mobile Styling */
+        @media (max-width: 768px) {
+            .results-table th,
+            .results-table td {
+                padding: 8px;
+            }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 1; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0, 0, 0, 0.5); 
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 350px;
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        img.modal-image {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Image Results</h1>
+        <nav>
+            <a href="/" style="color: rgb(71, 71, 71); margin: 0 20px;">Home</a>
+            <a href="{{ url_for('results') }}" style="color: rgb(71, 71, 71); margin: 0 20px;">Results</a>
+        </nav>
+    </header>
+
+    <!-- Dark Mode / Light Mode Toggle Button -->
+    <button class="toggle-btn" onclick="toggleTheme()">Switch to Dark Mode</button>
+
+    <div class="container">
+
+        {% if not result_files %}
+        <p class="no-results">No results found.</p>
+        {% else %}
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">Filename</th>
+                    <th onclick="sortTable(1)">Timestamp</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in result_files %}
+                <tr>
+                    <td>{{ file.filename }}</td>
+                    <td>{{ file.timestamp }}</td>
+                    <td>
+                        <form method="post" action="{{ url_for('delete_file', filename=file.filename) }}"
+                            style="display:inline;">
+                            <button type="submit" class="delete-btn">Delete</button>
+                        </form>
+                        <!-- View Button -->
+                        <button type="button" class="download-btn" onclick="viewImage('{{ file.filename }}')">View</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table><br><br>
+
+        <form method="post" action="{{ url_for('delete_all_files') }}">
+            <button type="submit" class="delete-all-btn">Delete All</button>
+        </form>
+        {% endif %}
+
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Image Deblurring & Vehicle Info App. All rights reserved.</p>
+    </footer>
+
+    <!-- Modal for Image View -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <img id="modalImage" class="modal-image" src="" alt="Image Preview">
+        </div>
+    </div>
+
+    <script>
+        // Check if a user has a stored theme preference
+        if (localStorage.getItem("theme") === "dark") {
+            document.body.classList.add("dark-mode");
+        } else {
+            document.body.classList.remove("dark-mode");
+        }
+
+        // Toggle between light and dark modes
+        function toggleTheme() {
+            const isDarkMode = document.body.classList.toggle("dark-mode");
+            localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+            document.querySelector(".toggle-btn").textContent = isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
+        }
+
+        // Sort Table Function
+        function sortTable(n) {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementsByClassName("results-table")[0];
+            switching = true;
+            dir = "asc";
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    if (dir == "asc") {
+                        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+
+        // Open Image Modal
+        function viewImage(filename) {
+            var modal = document.getElementById("imageModal");
+            var modalImage = document.getElementById("modalImage");
+            modal.style.display = "block";
+            modalImage.src = "../static/results/" + filename; // Adjust path accordingly
+        }
+
+        // Close Image Modal
+        function closeModal() {
+            var modal = document.getElementById("imageModal");
+            modal.style.display = "none";
+        }
+
+        // Close modal if clicked outside of the modal content
+        window.onclick = function(event) {
+            var modal = document.getElementById("imageModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+
+</body>
+
+</html>

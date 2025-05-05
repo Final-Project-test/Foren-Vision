@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Deblurring & Vehicle Info</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Image Deblurring & Vehicle Info</h1>
+        <nav>
+            <a href="/" style="color: rgb(71, 71, 71); margin: 0 20px;">Home</a>
+            <a href="{{ url_for('results') }}" style="color: rgb(71, 71, 71); margin: 0 20px;">Results</a>
+        </nav>
+    </header>
+
+    <!-- Dark Mode / Light Mode Toggle Button -->
+    <button class="toggle-btn" onclick="toggleTheme()">Switch to Dark Mode</button>
+
+    <div class="container">
+        {% if error_msg %}
+        <div style="color:red; font-weight: bold;">{{ error_msg }}</div>
+        {% endif %}
+
+        {% if not image_processed %}
+        <form method="post" enctype="multipart/form-data">
+            <div class="upload-container" id="upload-container">
+                <p>Click to select a file</p>
+                <!-- File input with event listener for change -->
+                <input type="file" name="image" required id="file-input" hidden><br>
+                <label for="file-input" id="file-label">Choose file</label>
+                <!-- Display file name after selection -->
+                <p id="file-name" style="font-size: 16px; color: #555; margin-top: 10px;">No file selected</p>
+            </div>
+            <button type="submit" class="zoom-btn" id="submit-btn" style="display: initial;">Upload and Deblur</button>
+        </form>
+        {% endif %}
+
+        {% if image_processed %}
+        <h2>Comparison</h2>
+        <div class="image-container">
+            <div>
+                <h3>Original Image</h3>
+                <img src="{{ url_for('static', filename='uploads/' + image_filename) }}" alt="Original Image">
+            </div>
+            <div>
+                <h3>Deblurred Image</h3>
+                <div class="img-container" id="img-container">
+                    <img id="deblurredImg"
+                        src="{{ url_for('static', filename='results/' + 'deblur_' + image_filename) }}"
+                        alt="Deblurred Image">
+                </div>
+                <!-- Zoom Button for enabling/disabling zoom -->
+                <div class="zoom-buttons" id="zoom-buttons" style="display: block;">
+                    <button type="button" onclick="toggleZoom()" id="zoomToggleBtn">Zoom In</button>
+                </div>
+            </div>
+            <div>
+                <h3>OCR Output Image</h3>
+                {% if ocr_img %}
+                <img src="{{ url_for('static', filename='results/' + ocr_img.split('/')[-1]) }}" alt="OCR Output">
+                {% else %}
+                <p>No OCR output available</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <h2>Vehicle Details</h2>
+        <form method="post">
+            <input type="text" name="car_number" placeholder="Enter car number" required>
+            <input type="hidden" name="image_filename" value="{{ image_filename }}">
+            <button type="submit" class="zoom-btn">Get Vehicle Info</button>
+        </form>
+
+        <br>
+        <form method="post">
+            <input type="hidden" name="image_filename" value="{{ image_filename }}">
+            <button type="submit" name="forensics_check" class="zoom-btn">Run Forensics Check</button>
+        </form>
+        {% endif %}
+
+        {% if vehicle_info %}
+        <h2>Vehicle Information</h2>
+        <div class="info-box">
+            {% for key, value in vehicle_info.data.items() %}
+            <strong>{{ key.replace('_', ' ').upper() }}:</strong> {{ value if value else "N/A" }}<br>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if exif_data %}
+        <h2>EXIF Metadata</h2>
+        <table class="info-box" style="width: 100%; text-align: left;">
+            {% for key, value in exif_data.items() %}
+            <tr>
+                <td><strong>{{ key.replace('_', ' ').title() }}:</strong></td>
+                <td>{{ value if value else "N/A" }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+
+        {% if hash_data %}
+        <h2>Image Hashes</h2>
+        <div class="info-box">
+            <strong>SHA256:</strong> {{ hash_data.SHA256 }}<br>
+            <strong>SHA512:</strong> {{ hash_data.SHA512 }}<br>
+        </div>
+        {% endif %}
+
+        {% if ela_image %}
+        <h2>ELA Image (Tampering Check)</h2>
+        <div class="info-box" style="display: flex; justify-content: center; align-items: center; height: 400px;">
+            <img src="{{ url_for('static', filename='results/' + 'ela_' + image_filename) }}" alt="ELA Image"
+                style="max-width: 100%; height: auto;">
+        </div>
+        {% endif %}
+
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Image Deblurring & Vehicle Info App. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Debugging log to check if the script is being loaded properly
+        console.log('Script Loaded');
+        
+        // Check if a user has a stored theme preference
+        if (localStorage.getItem("theme") === "dark") {
+            document.body.classList.add("dark-mode");
+        } else {
+            document.body.classList.remove("dark-mode");
+        }
+
+        // Toggle between light and dark modes
+        function toggleTheme() {
+            const isDarkMode = document.body.classList.toggle("dark-mode");
+            localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+            document.querySelector(".toggle-btn").textContent = isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
+        }
+
+        // Debugging: Check if the event listener is attached
+        const fileInput = document.getElementById('file-input');
+        const fileNameDisplay = document.getElementById('file-name');
+
+        console.log(fileInput); // Log the file input element
+
+        // Display the file name after file selection
+        fileInput.addEventListener('change', function() {
+            console.log('File input changed'); // Log when the file is selected
+            const fileName = this.files && this.files[0] ? this.files[0].name : 'No file selected';
+            console.log('Selected file name: ', fileName); // Log the file name
+            fileNameDisplay.textContent = fileName;
+        });
+    </script>
+
+    <script>
+        // Zoom functionality for the deblurred image
+        const deblurredImg = document.getElementById("deblurredImg");
+        const container = document.getElementById("img-container");
+        let zoomEnabled = false;
+
+        // Toggle zoom effect
+        function toggleZoom() {
+            zoomEnabled = !zoomEnabled;
+
+            if (zoomEnabled) {
+                document.getElementById("zoomToggleBtn").textContent = "Zoom Out";
+            } else {
+                deblurredImg.style.transform = 'scale(1)'; // Reset scale when zoom is disabled
+                document.getElementById("zoomToggleBtn").textContent = "Zoom In";
+            }
+        }
+
+        // Mousemove event for zoom-in functionality
+        container.addEventListener('mousemove', function (e) {
+            if (!zoomEnabled) return;
+
+            const rect = container.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+            // Adjust the zoom center and scale the image
+            deblurredImg.style.transformOrigin = `${x}% ${y}%`;
+            deblurredImg.style.transform = 'scale(4)'; // Zoom the image to 4x
+        });
+
+        // Mouseleave event to reset zoom when mouse leaves the image
+        container.addEventListener('mouseleave', function () {
+            if (zoomEnabled) {
+                deblurredImg.style.transform = 'scale(1)'; // Reset scale
+            }
+        });
+    </script>
+</body>
+
+</html>

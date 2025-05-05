@@ -1,0 +1,308 @@
+/* Default Light Mode Styles */
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+    background-color: #f9f9f9;
+    color: #333;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+header,
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+}
+
+footer {
+    font-size: 14px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
+    text-align: center;
+}
+
+.image-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+    position: relative;
+}
+
+.image-container img {
+    max-width: 500px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+}
+
+#img-container {
+    position: relative;
+    overflow: hidden;
+}
+
+#deblurredImg {
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    /* Smooth transition for zoom */
+}
+
+/* Zoomed class */
+.image-container img.zoomed {
+    transform: scale(2);
+}
+
+/* Info box for vehicle and other details */
+.info-box {
+    background-color: #f6f6f6;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 20px;
+    white-space: pre-line;
+    font-family: monospace;
+    text-align: left !important;
+    overflow: hidden;
+}
+
+/* Button & Link Styles */
+button,
+a {
+    display: inline-block;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    margin: 10px;
+}
+
+button {
+    background: linear-gradient(45deg, #ff6b6b, #ff4757);
+    color: white;
+    border: none;
+}
+
+button:hover {
+    background: linear-gradient(45deg, #ff4757, #ff6b6b);
+    box-shadow: 0px 4px 10px rgba(255, 87, 34, 0.6);
+    transform: scale(1.05);
+}
+
+a {
+    color: #333;
+    border: 2px solid transparent;
+    padding: 12px 20px;
+    text-decoration: none;
+    background-color: #ffffff;
+}
+
+a:hover {
+    color: #fff !important;
+    background-color: #007bff;
+    border-color: #007bff;
+    box-shadow: 0px 4px 10px rgba(0, 123, 255, 0.5);
+}
+
+/* Zoom Button */
+.zoom-buttons button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    padding: 12px 24px;
+}
+
+.zoom-buttons button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #1e1e1e;
+    color: #f0f0f0;
+}
+
+body.dark-mode header,
+body.dark-mode footer {
+    background-color: #111;
+}
+
+body.dark-mode .info-box {
+    background-color: #333;
+    color: #f0f0f0;
+}
+
+body.dark-mode .zoom-btn {
+    background-color: #e2a600;
+}
+
+body.dark-mode .zoom-btn:hover {
+    background-color: #555;
+}
+
+/* Toggle Button */
+.toggle-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+    background-color: #555;
+    transform: scale(1.05);
+}
+
+/* Responsive Styles */
+@media (max-width: 480px) {
+    .zoom-buttons button {
+        margin: 10px 0;
+        width: 80%;
+    }
+
+    .toggle-btn {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+}
+
+/* Drag-and-drop file upload container */
+.upload-container {
+    border: 2px dashed #3faffa;
+    border-radius: 10px;
+    padding: 30px;
+    background-color: #f9f9f9;
+    color: #3faffa;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    font-size: 16px;
+}
+
+.upload-container:hover {
+    background-color: #f0f8ff;
+    border-color: #0062ff;
+}
+
+.upload-container p {
+    margin: 0;
+    font-weight: bold;
+}
+
+#file-label {
+    color: white;
+    background-color: #3faffa;
+    padding: 12px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-top: 10px;
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#file-label:hover {
+    background-color: #007bff;
+    transform: scale(1.05);
+}
+
+
+#file-input {
+    display: none;
+}
+
+/* Styling for submit button */
+#submit-btn {
+    display: none;
+    background-color: #3faffa;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+#submit-btn:hover {
+    background-color: #3578e5;
+}
+
+/* Drag-and-drop visual feedback */
+.upload-container.dragging {
+    border-color: #3578e5;
+    background-color: #e6f7ff;
+}
+
+.upload-container.dragging p {
+    font-size: 18px;
+    color: #3578e5;
+}
+
+.upload-container.dragging #file-label {
+    color: #3578e5;
+}
+/* styles.css */
+
+/* Styling for h2 */
+h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: transparent;
+    background-image: linear-gradient(120deg, #833400, #8d1c00, #003366, #1f691f);
+    background-clip: text;
+    -webkit-background-clip: text;
+    text-transform: uppercase;
+    margin: 20px 0;
+    padding: 10px 0;
+    transition: transform 0.3s ease-in-out, text-shadow 0.3s ease-in-out;
+    text-align: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Add a glowing effect on hover */
+h2:hover {
+    transform: scale(1.05); /* Slightly scale the text */
+}
+
+h2:before {
+    content: '';
+    display: block;
+    height: 2px;
+    background-color: #383838;
+    width: 0%;
+    transition: width 0.4s ease-in-out;
+    margin-top: 5px;
+}
+
+h2:hover:before {
+    width: 100%;
+}
