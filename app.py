@@ -157,7 +157,7 @@ def index():
                 try:
                     # Run the deblurring script
                     subprocess.run(
-                        [PYTHON_PATH, 'test.py',
+                        [sys.executable, 'test.py',
                          '--input_img', image_path,
                          '--output_img', result_path,
                          '--weights', WEIGHTS_PATH],
